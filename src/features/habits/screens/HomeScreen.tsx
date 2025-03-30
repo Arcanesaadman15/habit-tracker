@@ -151,13 +151,7 @@ const HomeScreen: React.FC = () => {
           style={styles.headerGradient}
         >
           <View style={styles.header}>
-            <TouchableOpacity 
-              onPress={handleOpenDrawer} 
-              style={styles.drawerButton}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="menu-outline" size={26} color={colors.primary} />
-            </TouchableOpacity>
+            <View style={styles.headerLeft} />
             
             <Heading title="My Habits" level={1} />
             
@@ -224,15 +218,9 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     paddingHorizontal: spacing.md,
   },
-  drawerButton: {
-    padding: 8,
-    borderRadius: 12,
-    backgroundColor: `${colors.light}90`,
-    elevation: 2,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+  headerLeft: {
+    width: 48,
+    height: 48,
   },
   addButton: {
     width: 48,
