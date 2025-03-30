@@ -13,11 +13,11 @@ export interface OverallStats {
   totalHabits: number;
   activeHabits: number;
   averageCompletionRate: number;
-  topHabit?: {
+  topHabits: {
     id: string;
     title: string;
-    completionRate: number;
-  };
+    streakCount: number;
+  }[];
 }
 
 export type StatsContextType = {

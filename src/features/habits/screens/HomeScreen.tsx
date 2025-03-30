@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { View, FlatList, StyleSheet, TouchableOpacity, Text, StatusBar } from 'react-native';
+import { View, FlatList, StyleSheet, TouchableOpacity, Text, StatusBar, Animated } from 'react-native';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../navigation/types';
@@ -40,9 +40,7 @@ const HabitItem: React.FC<{
 
   // Generate a lighter version of the card border color
   const cardColor = habit.color || colors.primary;
-  const cardGradientStart = `${cardColor}20`; // 20% opacity
-  const cardGradientEnd = `${cardColor}05`;   // 5% opacity
-
+  
   return (
     <TouchableOpacity 
       style={styles.habitItemContainer}
@@ -50,12 +48,12 @@ const HabitItem: React.FC<{
       activeOpacity={0.85}
     >
       <LinearGradient
-        colors={[cardGradientStart, cardGradientEnd]}
+        colors={[`${cardColor}15`, `${cardColor}05`]}
         start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
+        end={{ x: 1, y: 1 }}
         style={[
           styles.habitItem,
-          { borderLeftColor: habit.color || colors.primary },
+          { borderLeftColor: cardColor },
         ]}
       >
         <View style={styles.habitContent}>
@@ -72,13 +70,13 @@ const HabitItem: React.FC<{
           
           <View style={styles.habitMeta}>
             <View style={styles.metaItem}>
-              <Ionicons name="flame" size={14} color={colors.grey} />
+              <Ionicons name="flame" size={16} color={colors.warning} />
               <Text style={styles.habitStreak}>
                 {habit.streakCount} days
               </Text>
             </View>
             <View style={styles.metaItem}>
-              <Ionicons name="repeat" size={14} color={colors.grey} />
+              <Ionicons name="repeat" size={16} color={colors.info} />
               <Text style={styles.habitFrequency}>
                 {habit.frequency === 'daily'
                   ? 'Daily'
@@ -96,9 +94,9 @@ const HabitItem: React.FC<{
           onPress={handleToggle}
         >
           {isCompletedToday ? (
-            <Ionicons name="checkmark-circle" size={24} color={colors.white} />
+            <Ionicons name="checkmark-circle" size={28} color={colors.white} />
           ) : (
-            <Ionicons name="checkmark-circle-outline" size={24} color={colors.primary} />
+            <Ionicons name="checkmark-circle-outline" size={28} color={colors.primary} />
           )}
         </TouchableOpacity>
       </LinearGradient>
@@ -147,17 +145,38 @@ const HomeScreen: React.FC = () => {
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
       
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleOpenDrawer} style={styles.drawerButton}>
-          <Ionicons name="menu" size={24} color={colors.dark} />
-        </TouchableOpacity>
-        <Heading title="My Habits" level={1} />
-        <TouchableOpacity 
-          style={styles.addButton} 
-          onPress={handleAddHabit}
+      <View style={styles.headerContainer}>
+        <LinearGradient
+          colors={[colors.background, `${colors.background}F0`]}
+          style={styles.headerGradient}
         >
-          <Ionicons name="add" size={24} color={colors.white} />
-        </TouchableOpacity>
+          <View style={styles.header}>
+            <TouchableOpacity 
+              onPress={handleOpenDrawer} 
+              style={styles.drawerButton}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="menu-outline" size={26} color={colors.primary} />
+            </TouchableOpacity>
+            
+            <Heading title="My Habits" level={1} />
+            
+            <TouchableOpacity 
+              style={styles.addButton} 
+              onPress={handleAddHabit}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={[colors.primary, colors.primaryLight]}
+                style={styles.addButtonGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              >
+                <Ionicons name="add" size={26} color={colors.white} />
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
       </View>
 
       <FlatList
@@ -185,134 +204,148 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    padding: spacing.md,
+  },
+  headerContainer: {
+    zIndex: 10,
+    elevation: 3,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  headerGradient: {
+    width: '100%',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.lg,
     paddingTop: spacing.lg,
-    paddingBottom: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: `${colors.grey}20`,
+    paddingBottom: spacing.md,
+    paddingHorizontal: spacing.md,
   },
   drawerButton: {
     padding: 8,
-    borderRadius: 8,
-    backgroundColor: `${colors.grey}15`,
+    borderRadius: 12,
+    backgroundColor: `${colors.light}90`,
+    elevation: 2,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   addButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.primary,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    overflow: 'hidden',
+    elevation: 4,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  addButtonGradient: {
+    width: '100%',
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 3,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
   },
   listContainer: {
     flexGrow: 1,
-    paddingBottom: spacing.lg,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xl,
+  },
+  emptyList: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   habitItemContainer: {
     marginBottom: spacing.md,
-    borderRadius: 12,
+    borderRadius: 16,
     overflow: 'hidden',
-    elevation: 2,
+    elevation: 3,
     shadowColor: colors.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 3,
+    shadowRadius: 4,
   },
   habitItem: {
     flexDirection: 'row',
     backgroundColor: colors.white,
-    borderRadius: 12,
+    borderRadius: 16,
     padding: spacing.md,
-    borderLeftWidth: 4,
+    borderLeftWidth: 5,
   },
   titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 4,
   },
   habitContent: {
     flex: 1,
     marginRight: spacing.md,
   },
   habitTitle: {
-    fontSize: typography.fontSizes.md,
+    fontSize: typography.fontSizes.lg,
     fontWeight: '700',
-    marginBottom: spacing.xs,
-    color: colors.dark,
+    color: '#2C3A47',
     flex: 1,
-  },
-  urgencyBadge: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: spacing.xs,
-  },
-  urgencyText: {
-    color: colors.white,
-    fontWeight: '700',
-    fontSize: typography.fontSizes.xs,
+    marginRight: spacing.sm,
   },
   habitDescription: {
     fontSize: typography.fontSizes.sm,
     color: colors.grey,
-    marginBottom: spacing.xs,
+    marginBottom: spacing.sm,
     lineHeight: 20,
   },
   habitMeta: {
     flexDirection: 'row',
-    marginTop: spacing.sm,
     alignItems: 'center',
+    marginTop: 4,
   },
   metaItem: {
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: spacing.md,
+    backgroundColor: `${colors.light}80`,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
   habitStreak: {
     fontSize: typography.fontSizes.sm,
-    color: colors.grey,
+    color: '#2C3A47',
+    fontWeight: '500',
     marginLeft: 4,
   },
   habitFrequency: {
     fontSize: typography.fontSizes.sm,
-    color: colors.grey,
+    color: '#2C3A47',
+    fontWeight: '500',
     marginLeft: 4,
   },
   checkButton: {
-    alignSelf: 'center',
-    width: 44,
-    height: 44,
-    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.light,
+    padding: 4,
+    borderRadius: 20,
+    alignSelf: 'center',
   },
   checkedButton: {
     backgroundColor: colors.primary,
   },
   emptyStateContainer: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: spacing.xxl * 2,
+    padding: spacing.xl,
   },
   emptyStateText: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: '700',
-    color: colors.dark,
+    fontSize: typography.fontSizes.xl,
+    color: '#2C3A47',
+    fontWeight: '600',
     marginTop: spacing.lg,
     marginBottom: spacing.sm,
   },
@@ -320,28 +353,23 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.md,
     color: colors.grey,
     textAlign: 'center',
-    paddingHorizontal: spacing.xl,
     marginBottom: spacing.xl,
   },
   emptyStateButton: {
     backgroundColor: colors.primary,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
-    borderRadius: 25,
+    borderRadius: 12,
     elevation: 2,
     shadowColor: colors.black,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.1,
     shadowRadius: 2,
   },
   emptyStateButtonText: {
     color: colors.white,
-    fontSize: typography.fontSizes.md,
     fontWeight: '600',
-  },
-  emptyList: {
-    flex: 1,
-    justifyContent: 'center',
+    fontSize: typography.fontSizes.md,
   },
 });
 

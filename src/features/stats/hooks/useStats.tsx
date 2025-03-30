@@ -26,17 +26,15 @@ export const StatsProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   };
 
   const calculateOverallStats = (habits: Habit[]): OverallStats => {
-    if (!habits.length) {
+    if (habits.length === 0) {
       return {
         totalHabits: 0,
         activeHabits: 0,
         averageCompletionRate: 0,
+        topHabits: []
       };
     }
 
-    const habitStats = habits.map(calculateHabitStats);
-    const totalHabits = habits.length;
-    
     // Consider a habit active if it has any completions in the last 7 days
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -47,25 +45,50 @@ export const StatsProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         const completionDate = new Date(dateStr);
         return completionDate.getTime() >= sevenDaysAgoTime;
       });
-    }).length;
-    
+    });
+
     // Calculate average completion rate
-    const averageCompletionRate = Math.round(
-      habitStats.reduce((sum, stat) => sum + stat.completionRate, 0) / totalHabits
-    );
+    let totalCompletionRate = 0;
     
-    // Find top habit by completion rate
-    const topHabit = [...habitStats].sort((a, b) => b.completionRate - a.completionRate)[0];
-    
+    activeHabits.forEach(habit => {
+      const habitStats = calculateHabitStats(habit);
+      totalCompletionRate += habitStats.completionRate;
+    });
+
+    const averageCompletionRate = activeHabits.length > 0
+      ? totalCompletionRate / activeHabits.length
+      : 0;
+
+    // Find habits with the highest streak count
+    let highestStreakCount = 0;
+    let topHabitsArray: { id: string; title: string; streakCount: number }[] = [];
+
+    habits.forEach(habit => {
+      const streakCount = habit.streakCount;
+
+      if (streakCount > highestStreakCount) {
+        // New highest streak found, reset array with this habit
+        highestStreakCount = streakCount;
+        topHabitsArray = [{ 
+          id: habit.id, 
+          title: habit.title, 
+          streakCount: streakCount 
+        }];
+      } else if (streakCount === highestStreakCount && streakCount > 0) {
+        // Equal highest streak, add to array
+        topHabitsArray.push({ 
+          id: habit.id, 
+          title: habit.title, 
+          streakCount: streakCount 
+        });
+      }
+    });
+
     return {
-      totalHabits,
-      activeHabits,
+      totalHabits: habits.length,
+      activeHabits: activeHabits.length,
       averageCompletionRate,
-      topHabit: topHabit ? {
-        id: topHabit.habitId,
-        title: topHabit.title,
-        completionRate: topHabit.completionRate,
-      } : undefined,
+      topHabits: topHabitsArray
     };
   };
 
