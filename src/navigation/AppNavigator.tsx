@@ -8,11 +8,12 @@ import StatsScreen from '../features/stats/screens/StatsScreen';
 import SettingsScreen from '../features/settings/screens/SettingsScreen';
 import HabitDetailScreen from '../features/habits/screens/HabitDetailScreen';
 import AddHabitScreen from '../features/habits/screens/AddHabitScreen';
-import { RootStackParamList, DrawerParamList } from './types';
+import { RootStackParamList } from './types';
 import { colors } from '../theme/theme';
 
-// Create a drawer navigator
-const Drawer = createDrawerNavigator<DrawerParamList>();
+// Create drawer and stack navigators
+const Drawer = createDrawerNavigator<RootStackParamList>();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 // Create a custom drawer header
 const DrawerHeader = () => (
@@ -21,125 +22,86 @@ const DrawerHeader = () => (
   </View>
 );
 
-const MainDrawerNavigator = () => {
+// Main navigation stack for content accessible from drawer items
+const MainStack = () => {
   return (
-    <Drawer.Navigator
+    <Stack.Navigator
       screenOptions={{
-        headerStyle: {
-          backgroundColor: colors.primary,
-        },
-        headerTintColor: colors.white,
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-        drawerActiveTintColor: colors.primary,
-        drawerInactiveTintColor: colors.grey,
-        drawerType: 'front',
-        drawerStyle: {
-          backgroundColor: '#f5f5f5',
-          width: 250,
-        },
-        drawerLabelStyle: {
-          fontSize: 16,
-          fontWeight: '500',
-        },
+        headerShown: false,
       }}
-      drawerContent={(props) => (
-        <View style={styles.drawerContainer}>
-          <DrawerHeader />
-          {props.state.routes.map((route, index) => {
-            const focused = props.state.index === index;
-            const { title } = props.descriptors[route.key].options;
-            
-            return (
-              <TouchableOpacity
-                key={route.key}
-                style={[
-                  styles.drawerItem,
-                  focused && styles.drawerItemActive
-                ]}
-                onPress={() => props.navigation.navigate(route.name)}
-              >
-                <Text 
-                  style={[
-                    styles.drawerLabel,
-                    focused && styles.drawerLabelActive
-                  ]}
-                >
-                  {title}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      )}
     >
-      <Drawer.Screen 
-        name="Home" 
-        component={HomeScreen} 
-        options={{
-          title: 'Habits',
-        }}
-      />
-      <Drawer.Screen 
-        name="Stats" 
-        component={StatsScreen} 
-        options={{
-          title: 'Statistics',
-        }}
-      />
-      <Drawer.Screen 
-        name="SettingsDrawer" 
-        component={SettingsScreen} 
-        options={{
-          title: 'Settings',
-        }}
-      />
-    </Drawer.Navigator>
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="HabitDetail" component={HabitDetailScreen} />
+      <Stack.Screen name="AddHabit" component={AddHabitScreen} />
+    </Stack.Navigator>
   );
 };
 
-// Root stack setup
-const Stack = createNativeStackNavigator<RootStackParamList>();
-
+// Unified AppNavigator with a single drawer navigator
 const AppNavigator = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator
+      <Drawer.Navigator
         screenOptions={{
-          headerStyle: {
-            backgroundColor: colors.primary,
+          headerShown: false, // Hide the default drawer header
+          drawerType: 'front',
+          drawerStyle: {
+            backgroundColor: '#f5f5f5',
+            width: 280,
           },
-          headerTintColor: colors.white,
-          headerTitleStyle: {
-            fontWeight: 'bold',
+          drawerActiveTintColor: colors.primary,
+          drawerInactiveTintColor: colors.grey,
+          drawerLabelStyle: {
+            fontSize: 16,
+            fontWeight: '500',
           },
         }}
+        drawerContent={(props) => (
+          <View style={styles.drawerContainer}>
+            <DrawerHeader />
+            {props.state.routes.map((route, index) => {
+              const focused = props.state.index === index;
+              const { title } = props.descriptors[route.key].options;
+              
+              return (
+                <TouchableOpacity
+                  key={route.key}
+                  style={[
+                    styles.drawerItem,
+                    focused && styles.drawerItemActive
+                  ]}
+                  onPress={() => props.navigation.navigate(route.name)}
+                >
+                  <Text 
+                    style={[
+                      styles.drawerLabel,
+                      focused && styles.drawerLabelActive
+                    ]}
+                  >
+                    {title}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
       >
-        <Stack.Screen 
-          name="Main" 
-          component={MainDrawerNavigator} 
-          options={{ headerShown: false }} 
+        <Drawer.Screen 
+          name="MainStack" 
+          component={MainStack} 
+          options={{ title: 'Habits' }} 
         />
-        <Stack.Screen 
-          name="HabitDetail" 
-          component={HabitDetailScreen} 
-          options={{ title: 'Habit Details' }} 
+        <Drawer.Screen 
+          name="Stats" 
+          component={StatsScreen} 
+          options={{ title: 'Statistics' }} 
         />
-        <Stack.Screen 
-          name="AddHabit" 
-          component={AddHabitScreen} 
-          options={{ title: 'Create a Habit' }} 
-        />
-        <Stack.Screen 
+        <Drawer.Screen 
           name="Settings" 
           component={SettingsScreen} 
-          options={{ 
-            title: 'Settings',
-            presentation: 'modal'
-          }} 
+          options={{ title: 'Settings' }} 
         />
-      </Stack.Navigator>
+      </Drawer.Navigator>
     </NavigationContainer>
   );
 };
@@ -159,7 +121,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   drawerHeaderText: {
-    color: colors.white,
+    color: '#FFFFFF',
     fontSize: 22,
     fontWeight: 'bold',
   },
@@ -173,7 +135,7 @@ const styles = StyleSheet.create({
   },
   drawerLabel: {
     fontSize: 16,
-    color: colors.dark,
+    color: '#2C3A47',
   },
   drawerLabelActive: {
     color: colors.primary,

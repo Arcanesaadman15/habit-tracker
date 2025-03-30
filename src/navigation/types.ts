@@ -3,15 +3,20 @@ import { Habit } from '../features/habits/types';
 
 // Define the drawer param list for the drawer navigator
 export type DrawerParamList = {
-  Home: undefined;
+  MainStack: undefined;
   Stats: undefined;
-  SettingsDrawer: undefined;
+  Settings: undefined;
 };
 
 // Root stack param list for the application navigation
 export type RootStackParamList = {
-  Main: NavigatorScreenParams<DrawerParamList>;
+  // Drawer routes
+  MainStack: undefined;
+  Stats: undefined;
+  Settings: undefined;
+  
+  // Stack routes
+  Home: undefined;
   HabitDetail: { habit: Habit };
   AddHabit: undefined;
-  Settings: undefined;
 }; 
