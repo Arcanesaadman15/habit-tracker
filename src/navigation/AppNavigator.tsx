@@ -10,6 +10,7 @@ import HabitDetailScreen from '../features/habits/screens/HabitDetailScreen';
 import AddHabitScreen from '../features/habits/screens/AddHabitScreen';
 import { RootStackParamList } from './types';
 import { colors } from '../theme/theme';
+import { Ionicons } from '@expo/vector-icons';
 
 // Create drawer and stack navigators
 const Drawer = createDrawerNavigator<RootStackParamList>();
@@ -55,6 +56,8 @@ const AppNavigator = () => {
             fontSize: 16,
             fontWeight: '500',
           },
+          // Make edge swipe area wider
+          swipeEdgeWidth: 80,
         }}
         drawerContent={(props) => (
           <View style={styles.drawerContainer}>
@@ -62,6 +65,14 @@ const AppNavigator = () => {
             {props.state.routes.map((route, index) => {
               const focused = props.state.index === index;
               const { title } = props.descriptors[route.key].options;
+              
+              // Determine icon based on route name
+              let iconName = "home-outline";
+              if (route.name === "Stats") {
+                iconName = "bar-chart-outline";
+              } else if (route.name === "Settings") {
+                iconName = "settings-outline";
+              }
               
               return (
                 <TouchableOpacity
@@ -72,6 +83,12 @@ const AppNavigator = () => {
                   ]}
                   onPress={() => props.navigation.navigate(route.name)}
                 >
+                  <Ionicons 
+                    name={iconName as any} 
+                    size={22} 
+                    color={focused ? colors.primary : '#2C3A47'} 
+                    style={styles.drawerIcon}
+                  />
                   <Text 
                     style={[
                       styles.drawerLabel,
@@ -126,12 +143,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   drawerItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.05)',
   },
   drawerItemActive: {
-    backgroundColor: 'rgba(0,0,0,0.05)',
+    backgroundColor: 'rgba(83, 82, 237, 0.08)',
+  },
+  drawerIcon: {
+    marginRight: 12,
   },
   drawerLabel: {
     fontSize: 16,
